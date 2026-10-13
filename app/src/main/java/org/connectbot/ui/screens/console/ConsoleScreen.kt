@@ -60,7 +60,6 @@ import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -78,8 +77,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -151,11 +148,14 @@ import org.connectbot.ui.LoadingScreen
 import org.connectbot.ui.LocalTerminalManager
 import org.connectbot.ui.components.AuthBannerDialog
 import org.connectbot.ui.components.FloatingTextInputDialog
+import org.connectbot.ui.components.GlassAlertDialog
+import org.connectbot.ui.components.GlassTopAppBar
 import org.connectbot.ui.components.InlinePrompt
 import org.connectbot.ui.components.ResizeDialog
 import org.connectbot.ui.components.TERMINAL_KEYBOARD_HEIGHT_DP
 import org.connectbot.ui.components.TerminalKeyboard
 import org.connectbot.ui.components.UrlScanDialog
+import org.connectbot.ui.components.glassTopAppBarColors
 import org.connectbot.ui.theme.terminal
 import org.connectbot.util.PreferenceConstants
 import org.connectbot.util.UrlUtils
@@ -1196,7 +1196,7 @@ fun ConsoleScreen(
         // or temporarily visible when titleBarHide is true and showTitleBar is true
         if (!titleBarHide || showTitleBar) {
             val density = LocalDensity.current
-            TopAppBar(
+            GlassTopAppBar(
                 title = {
                     Text(
                         currentBridge?.host?.nickname
@@ -1218,15 +1218,7 @@ fun ConsoleScreen(
                         )
                     }
                 },
-                colors = if (titleBarHide) {
-                    // Translucent overlay when auto-hide is enabled
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                    )
-                } else {
-                    // Solid color when permanently visible
-                    TopAppBarDefaults.topAppBarColors()
-                },
+                colors = glassTopAppBarColors(),
                 actions = {
                     if (hasMultipleSessions) {
                         IconButton(onClick = { showSessionPickerDialog = true }) {
@@ -1475,7 +1467,7 @@ private fun HostDisconnectDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         text = {
             Text(stringResource(R.string.disconnect_host_alert, host.nickname))
@@ -1502,7 +1494,7 @@ internal fun SessionPickerDialog(
     onDismiss: () -> Unit,
     onSelectBridge: (Int) -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(stringResource(R.string.console_switch_session))

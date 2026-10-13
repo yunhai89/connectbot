@@ -19,6 +19,8 @@
 
 package org.connectbot.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -26,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import org.connectbot.data.entity.Host
 import org.connectbot.service.TerminalManager
+import org.connectbot.ui.navigation.AppStateEnter
+import org.connectbot.ui.navigation.AppStateExit
 import org.connectbot.ui.navigation.ConnectBotNavHost
 import org.connectbot.ui.navigation.NavDestinations
 import org.connectbot.ui.theme.ConnectBotTheme
@@ -35,6 +39,9 @@ import org.connectbot.util.ThemeMode
 val LocalTerminalManager = compositionLocalOf<TerminalManager?> {
     null
 }
+
+/** Stable keys for the top-level app states so transitions only run when the screen actually changes. */
+private enum class AppScreen { Loading, Migration, Authentication, Main }
 
 @Composable
 fun ConnectBotApp(
@@ -51,38 +58,65 @@ fun ConnectBotApp(
     modifier: Modifier = Modifier,
 ) {
     ConnectBotTheme(themeMode = themeMode) {
-        when (appUiState) {
-            is AppUiState.Loading -> {
-                LoadingScreen(modifier = modifier)
-            }
+        val screen = when (appUiState) {
+            is AppUiState.Loading -> AppScreen.Loading
 
-            is AppUiState.MigrationInProgress -> {
-                MigrationScreen(
-                    uiState = MigrationUiState.InProgress(appUiState.state),
-                    onRetry = onRetryMigration,
-                    modifier = modifier,
-                )
-            }
+            is AppUiState.MigrationInProgress, is AppUiState.MigrationFailed -> AppScreen.Migration
 
-            is AppUiState.MigrationFailed -> {
-                MigrationScreen(
-                    uiState = MigrationUiState.Failed(
-                        appUiState.error,
-                        appUiState.debugLog,
-                    ),
-                    onRetry = onRetryMigration,
-                    modifier = modifier,
-                )
-            }
-
-            is AppUiState.Ready -> {
+            is AppUiState.Ready ->
                 if (authRequired && !isAuthenticated && !makingShortcut) {
+                    AppScreen.Authentication
+                } else {
+                    AppScreen.Main
+                }
+        }
+
+        AnimatedContent(
+            targetState = screen,
+            transitionSpec = { AppStateEnter togetherWith AppStateExit },
+            contentKey = { it },
+            label = "AppScreenTransition",
+        ) { target ->
+            when (target) {
+                AppScreen.Loading -> {
+                    LoadingScreen(modifier = modifier)
+                }
+
+                AppScreen.Migration -> {
+                    when (val state = appUiState) {
+                        is AppUiState.MigrationInProgress -> {
+                            MigrationScreen(
+                                uiState = MigrationUiState.InProgress(state.state),
+                                onRetry = onRetryMigration,
+                                modifier = modifier,
+                            )
+                        }
+
+                        is AppUiState.MigrationFailed -> {
+                            MigrationScreen(
+                                uiState = MigrationUiState.Failed(
+                                    state.error,
+                                    state.debugLog,
+                                ),
+                                onRetry = onRetryMigration,
+                                modifier = modifier,
+                            )
+                        }
+
+                        else -> Unit
+                    }
+                }
+
+                AppScreen.Authentication -> {
                     AuthenticationScreen(
                         onAuthenticationSuccess = onAuthenticationSuccess,
                         modifier = modifier,
                     )
-                } else {
-                    CompositionLocalProvider(LocalTerminalManager provides appUiState.terminalManager) {
+                }
+
+                AppScreen.Main -> {
+                    val readyState = appUiState as? AppUiState.Ready ?: return@AnimatedContent
+                    CompositionLocalProvider(LocalTerminalManager provides readyState.terminalManager) {
                         ConnectBotNavHost(
                             navController = navController,
                             startDestination = NavDestinations.HOST_LIST,

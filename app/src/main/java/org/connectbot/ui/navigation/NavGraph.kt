@@ -63,6 +63,10 @@ fun ConnectBotNavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
+        enterTransition = { PageEnter },
+        exitTransition = { PageExit },
+        popEnterTransition = { PagePopEnter },
+        popExitTransition = { PagePopExit },
     ) {
         composable(NavDestinations.HOST_LIST) {
             HostListScreen(
@@ -99,6 +103,10 @@ fun ConnectBotNavHost(
             arguments = listOf(
                 navArgument(NavArgs.HOST_ID) { type = NavType.LongType },
             ),
+            enterTransition = { ModalEnter },
+            exitTransition = { ModalExit },
+            popEnterTransition = { ModalPopEnter },
+            popExitTransition = { ModalPopExit },
         ) {
             ConsoleScreen(
                 onNavigateBack = { navController.safePopBackStack() },

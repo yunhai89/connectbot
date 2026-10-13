@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,6 +56,7 @@ import org.connectbot.R
 import org.connectbot.data.entity.Host
 import org.connectbot.ui.common.ColorOption
 import org.connectbot.ui.common.getIconColors
+import org.connectbot.ui.components.GlassAlertDialog
 import org.connectbot.util.IconStyle
 import org.connectbot.util.ShortcutIconGenerator
 
@@ -66,6 +66,7 @@ fun ShortcutCustomizationDialog(
     host: Host,
     onDismiss: () -> Unit,
     onConfirm: (color: String?, iconStyle: IconStyle) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -87,7 +88,8 @@ fun ShortcutCustomizationDialog(
 
     val selectedColorDisplay = findColorDisplayName(effectiveColor, iconColors)
 
-    AlertDialog(
+    GlassAlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.shortcut_customize_title)) },
         text = {

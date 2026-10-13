@@ -17,7 +17,6 @@
 
 package org.connectbot.ui.components
 
-import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -26,7 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.window.DialogProperties
 
 /**
- * An [AlertDialog] wrapper that provides a [FocusRequester] to its content slot,
+ * An [GlassAlertDialog] wrapper that provides a [FocusRequester] to its content slot,
  * automatically requesting focus when the dialog is presented.
  */
 @Composable
@@ -40,7 +39,7 @@ fun FocusableAlertDialog(
     properties: DialogProperties = DialogProperties(),
     content: @Composable (FocusRequester) -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = confirmButton,
         modifier = modifier,

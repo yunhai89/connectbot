@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -47,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import org.connectbot.R
+import org.connectbot.ui.components.GlassAlertDialog
 
 /**
  * Dialog for selecting an RGB color with sliders.
@@ -62,6 +62,7 @@ fun RgbColorPickerDialog(
     initialColor: Int,
     onSelectColor: (Int) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Extract RGB components from ARGB Int
     val initialRed = (initialColor shr 16) and 0xFF
@@ -90,7 +91,8 @@ fun RgbColorPickerDialog(
         isUpdatingFromSliders = false
     }
 
-    AlertDialog(
+    GlassAlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {

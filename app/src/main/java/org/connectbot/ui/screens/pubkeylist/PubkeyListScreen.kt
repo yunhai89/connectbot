@@ -54,7 +54,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.LockOpen
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -67,6 +66,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -76,7 +76,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -107,9 +106,14 @@ import org.connectbot.data.entity.Pubkey
 import org.connectbot.ui.LocalTerminalManager
 import org.connectbot.ui.PreviewScreen
 import org.connectbot.ui.components.FocusableAlertDialog
+import org.connectbot.ui.components.GlassAlertDialog
+import org.connectbot.ui.components.GlassTopAppBar
 import org.connectbot.ui.components.TextInputAlertDialog
 import org.connectbot.ui.components.rememberBiometricPromptState
+import org.connectbot.ui.theme.AppShapes
 import org.connectbot.ui.theme.ConnectBotTheme
+import org.connectbot.ui.theme.glassBorder
+import org.connectbot.ui.theme.glassPalette
 
 internal object PubkeyListTestTags {
     fun itemMenuButton(pubkeyId: Long): String = "pubkey_item_${pubkeyId}_menu_button"
@@ -329,8 +333,9 @@ fun PubkeyListScreenContent(
     BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
-            TopAppBar(
+            GlassTopAppBar(
                 title = { Text(stringResource(R.string.title_pubkey_list)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -429,6 +434,7 @@ fun PubkeyListScreenContent(
                             key = { it.id },
                         ) { pubkey ->
                             PubkeyListItem(
+                                modifier = Modifier.animateItem(),
                                 pubkey = pubkey,
                                 isLoaded = uiState.loadedKeyNicknames.contains(pubkey.nickname),
                                 onDelete = { onDeletePubkey(pubkey) },
@@ -488,9 +494,11 @@ private fun PubkeyListItem(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var passwordCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
     var exportPassphraseCallback by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    val glass = glassPalette()
 
     Column(modifier = modifier) {
         ListItem(
+            colors = ListItemDefaults.colors(containerColor = glass.fill),
             supportingContent = {
                 Text(
                     stringResource(
@@ -737,13 +745,18 @@ private fun PubkeyListItem(
                     }
                 }
             },
-            modifier = Modifier.clickable {
-                onClick { _, callback ->
-                    // Show password dialog if needed
-                    passwordCallback = callback
-                    showPasswordDialog = true
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(AppShapes.large)
+                .glassBorder(shape = AppShapes.large, palette = glass)
+                .clickable {
+                    onClick { _, callback ->
+                        // Show password dialog if needed
+                        passwordCallback = callback
+                        showPasswordDialog = true
+                    }
                 }
-            }.testTag(PubkeyListTestTags.itemRow(pubkey.id)),
+                .testTag(PubkeyListTestTags.itemRow(pubkey.id)),
         ) {
             Text(
                 text = pubkey.nickname,
@@ -834,7 +847,7 @@ private fun PubkeyDeleteDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.Delete, contentDescription = null) },
         title = { Text(stringResource(R.string.pubkey_delete)) },

@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -32,14 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.connectbot.R
+import org.connectbot.ui.components.GlassAlertDialog
 
 @Composable
 fun UrlScanDialog(
     urls: List<String>,
     onDismiss: () -> Unit,
     onUrlClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.console_menu_urlscan)) },
         text = {

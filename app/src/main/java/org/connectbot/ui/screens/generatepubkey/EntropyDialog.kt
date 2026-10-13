@@ -20,7 +20,6 @@ package org.connectbot.ui.screens.generatepubkey
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,15 +33,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.connectbot.R
 import org.connectbot.ui.components.EntropyGatherer
+import org.connectbot.ui.components.GlassAlertDialog
 
 @Composable
 fun EntropyGatherDialog(
     onGatherEntropy: (ByteArray?) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var progress by remember { mutableIntStateOf(0) }
 
-    AlertDialog(
+    GlassAlertDialog(
+        modifier = modifier,
         onDismissRequest = {
             onGatherEntropy(null)
             onDismiss()
@@ -77,8 +79,9 @@ fun EntropyGatherDialog(
 }
 
 @Composable
-fun GeneratingKeyDialog() {
-    AlertDialog(
+fun GeneratingKeyDialog(modifier: Modifier = Modifier) {
+    GlassAlertDialog(
+        modifier = modifier,
         onDismissRequest = { /* Can't dismiss while generating */ },
         title = { Text(stringResource(R.string.pubkey_generating)) },
         text = {

@@ -36,7 +36,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -87,6 +86,7 @@ import org.connectbot.data.entity.PortForward
 import org.connectbot.service.automation.AutomationKeySupport
 import org.connectbot.terminal.VTermKey
 import org.connectbot.ui.components.EditorScaffold
+import org.connectbot.ui.components.GlassAlertDialog
 import org.connectbot.ui.components.SpecialCharVisualTransformation
 import org.connectbot.util.TerminalKeyModifiers
 import sh.calvin.reorderable.ReorderableItem
@@ -299,7 +299,7 @@ fun AutomationEditorScreen(
     }
 
     if (showAdd) {
-        AlertDialog(
+        GlassAlertDialog(
             onDismissRequest = { showAdd = false },
             title = { Text(stringResource(R.string.automation_add)) },
             text = {
@@ -383,7 +383,7 @@ private fun ActionEditorDialog(
     var seconds by rememberSaveable(action.id) { mutableStateOf((action.durationMs / 1000.0).toString()) }
     var keyMenu by remember { mutableStateOf(false) }
     var forwardMenu by remember { mutableStateOf(false) }
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(action.type.title())) },
         text = {

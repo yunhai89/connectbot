@@ -27,10 +27,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -48,16 +52,13 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -65,7 +66,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -76,13 +76,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -99,9 +100,15 @@ import org.connectbot.service.descriptionResource
 import org.connectbot.ui.LocalTerminalManager
 import org.connectbot.ui.PreviewScreen
 import org.connectbot.ui.components.DisconnectAllDialog
+import org.connectbot.ui.components.GlassAlertDialog
+import org.connectbot.ui.components.GlassTopAppBar
 import org.connectbot.ui.components.ShortcutCustomizationDialog
 import org.connectbot.ui.components.TextInputAlertDialog
 import org.connectbot.ui.theme.ConnectBotTheme
+import org.connectbot.ui.theme.GlassCard
+import org.connectbot.ui.theme.glassBorder
+import org.connectbot.ui.theme.glassClickable
+import org.connectbot.ui.theme.glassPalette
 import org.connectbot.util.IconStyle
 import java.io.IOException
 
@@ -302,6 +309,7 @@ fun HostListScreenContent(
     var showMenu by remember { mutableStateOf(false) }
     var showDisconnectAllDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val glass = glassPalette()
 
     // Show snackbar when there's an error
     LaunchedEffect(uiState.error) {
@@ -314,9 +322,10 @@ fun HostListScreenContent(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
+            GlassTopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 actions = {
                     if (!makingShortcut) {
@@ -403,7 +412,13 @@ fun HostListScreenContent(
                 FloatingActionButton(
                     onClick = { onNavigateToEditHost(null) },
                     // This matches the FloatingActionButtonMenu padding
-                    modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
+                    modifier = Modifier
+                        .padding(end = 16.dp, bottom = 16.dp)
+                        .shadow(12.dp, CircleShape, clip = false, ambientColor = glass.shadow, spotColor = glass.shadow)
+                        .glassBorder(shape = CircleShape, palette = glass),
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
                     Icon(Icons.Default.Add, contentDescription = stringResource(R.string.hostpref_add_host))
                 }
@@ -424,18 +439,24 @@ fun HostListScreenContent(
                 }
 
                 uiState.hosts.isEmpty() -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    GlassCard(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(horizontal = 32.dp),
                     ) {
-                        Text(
-                            text = stringResource(R.string.empty_hosts_message),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                        )
-                        TextButton(onClick = { onNavigateToEditHost(null) }) {
-                            Text(stringResource(R.string.hostpref_add_host))
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.empty_hosts_message),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 12.dp),
+                            )
+                            TextButton(onClick = { onNavigateToEditHost(null) }) {
+                                Text(stringResource(R.string.hostpref_add_host))
+                            }
                         }
                     }
                 }
@@ -456,6 +477,7 @@ fun HostListScreenContent(
                             key = { it.id },
                         ) { host ->
                             HostListItem(
+                                modifier = Modifier.animateItem(),
                                 host = host,
                                 connectionState = uiState.connectionStates[host.id] ?: ConnectionState.UNKNOWN,
                                 disconnectReason = uiState.disconnectReasons[host.id],
@@ -531,8 +553,182 @@ private fun HostListItem(
         (disconnectReason ?: DisconnectReason.UNKNOWN).descriptionResource(),
     )
 
+    GlassCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .glassClickable(onClick = onClick)
+            .testTag(HostListTestTags.itemRow(host.id)),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .then(
+                        if (!makingShortcut && connectionState != ConnectionState.UNKNOWN && connectionState != ConnectionState.CONNECTED) {
+                            Modifier.clickable(onClickLabel = statusDescription) { showStatusDialog = true }
+                        } else {
+                            Modifier
+                        },
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                // Main host icon with colored background and border
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .background(
+                            color = parseColor(host.color),
+                            shape = CircleShape,
+                        )
+                        .border(
+                            width = 3.dp,
+                            color = statusColor,
+                            shape = CircleShape,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = when (host.protocol) {
+                            "ssh" -> Icons.Default.Computer
+                            "telnet" -> Icons.Default.Computer
+                            else -> Icons.Default.Link
+                        },
+                        contentDescription = statusDescription.takeIf { it.isNotEmpty() },
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+
+                // Status badge icon in lower right corner
+                if (connectionState != ConnectionState.UNKNOWN) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .size(16.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = CircleShape,
+                            ),
+                    ) {
+                        Icon(
+                            imageVector = when (connectionState) {
+                                ConnectionState.CONNECTED -> Icons.Default.CheckCircle
+                                ConnectionState.DISCONNECTED -> Icons.Default.LinkOff
+                                ConnectionState.UNREAD_OUTPUT -> Icons.Default.Info
+                                ConnectionState.ERROR -> Icons.Default.Error
+                                ConnectionState.UNKNOWN -> Icons.Default.Computer // Unreachable
+                            },
+                            contentDescription = null,
+                            tint = statusColor,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = host.nickname,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "${host.protocol}://${host.hostname}:${host.port}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            if (!makingShortcut) {
+                Box {
+                    IconButton(
+                        onClick = { showMenu = true },
+                        modifier = Modifier.testTag(HostListTestTags.itemMenuButton(host.id)),
+                    ) {
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.button_host_options))
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.list_host_edit)) },
+                            onClick = {
+                                showMenu = false
+                                onEdit()
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Edit, null)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.list_host_portforwards)) },
+                            onClick = {
+                                showMenu = false
+                                onPortForwards()
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Link, null)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.list_host_duplicate)) },
+                            onClick = {
+                                showMenu = false
+                                onDuplicate()
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.ContentCopy, null)
+                            },
+                        )
+                        if (host.protocol == "ssh") {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.list_host_forget_keys)) },
+                                onClick = {
+                                    showMenu = false
+                                    showForgetHostKeysDialog = true
+                                },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Key, null)
+                                },
+                            )
+                        }
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.list_host_disconnect)) },
+                            onClick = {
+                                showMenu = false
+                                showDisconnectDialog = true
+                            },
+                            enabled = connectionState == ConnectionState.CONNECTED,
+                            leadingIcon = {
+                                Icon(Icons.Default.LinkOff, null)
+                            },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.list_host_delete)) },
+                            onClick = {
+                                showMenu = false
+                                showDeleteDialog = true
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Delete, null)
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     if (showStatusDialog) {
-        AlertDialog(
+        GlassAlertDialog(
             onDismissRequest = { showStatusDialog = false },
             title = { Text(statusDescription) },
             text = {
@@ -552,201 +748,37 @@ private fun HostListItem(
         )
     }
 
-    Column(modifier = modifier) {
-        ListItem(
-            supportingContent = {
-                Text("${host.protocol}://${host.hostname}:${host.port}")
+    if (showDeleteDialog) {
+        HostDeleteDialog(
+            host = host,
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                showDeleteDialog = false
+                onDelete()
             },
-            leadingContent = {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .then(
-                            if (!makingShortcut && connectionState != ConnectionState.UNKNOWN && connectionState != ConnectionState.CONNECTED) {
-                                Modifier.clickable(onClickLabel = statusDescription) { showStatusDialog = true }
-                            } else {
-                                Modifier
-                            },
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    // Main host icon with colored background and border
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                color = parseColor(host.color),
-                                shape = CircleShape,
-                            )
-                            .border(
-                                width = 3.dp,
-                                color = statusColor,
-                                shape = CircleShape,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = when (host.protocol) {
-                                "ssh" -> Icons.Default.Computer
-                                "telnet" -> Icons.Default.Computer
-                                else -> Icons.Default.Link
-                            },
-                            contentDescription = statusDescription.takeIf { it.isNotEmpty() },
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp),
-                        )
-                    }
+        )
+    }
 
-                    // Status badge icon in lower right corner
-                    if (connectionState != ConnectionState.UNKNOWN) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .size(16.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.surface,
-                                    shape = CircleShape,
-                                ),
-                        ) {
-                            Icon(
-                                imageVector = when (connectionState) {
-                                    ConnectionState.CONNECTED -> Icons.Default.CheckCircle
-                                    ConnectionState.DISCONNECTED -> Icons.Default.LinkOff
-                                    ConnectionState.UNREAD_OUTPUT -> Icons.Default.Info
-                                    ConnectionState.ERROR -> Icons.Default.Error
-                                    ConnectionState.UNKNOWN -> Icons.Default.Computer // Unreachable
-                                },
-                                contentDescription = null,
-                                tint = statusColor,
-                                modifier = Modifier.size(16.dp),
-                            )
-                        }
-                    }
-                }
+    if (showDisconnectDialog) {
+        HostDisconnectDialog(
+            host = host,
+            onDismiss = { showDisconnectDialog = false },
+            onConfirm = {
+                showDisconnectDialog = false
+                onDisconnect()
             },
-            trailingContent = {
-                if (!makingShortcut) {
-                    Box {
-                        IconButton(
-                            onClick = { showMenu = true },
-                            modifier = Modifier.testTag(HostListTestTags.itemMenuButton(host.id)),
-                        ) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.button_host_options))
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.list_host_edit)) },
-                                onClick = {
-                                    showMenu = false
-                                    onEdit()
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Edit, null)
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.list_host_portforwards)) },
-                                onClick = {
-                                    showMenu = false
-                                    onPortForwards()
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Link, null)
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.list_host_duplicate)) },
-                                onClick = {
-                                    showMenu = false
-                                    onDuplicate()
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.ContentCopy, null)
-                                },
-                            )
-                            if (host.protocol == "ssh") {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.list_host_forget_keys)) },
-                                    onClick = {
-                                        showMenu = false
-                                        showForgetHostKeysDialog = true
-                                    },
-                                    leadingIcon = {
-                                        Icon(Icons.Default.Key, null)
-                                    },
-                                )
-                            }
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.list_host_disconnect)) },
-                                onClick = {
-                                    showMenu = false
-                                    showDisconnectDialog = true
-                                },
-                                enabled = connectionState == ConnectionState.CONNECTED,
-                                leadingIcon = {
-                                    Icon(Icons.Default.LinkOff, null)
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.list_host_delete)) },
-                                onClick = {
-                                    showMenu = false
-                                    showDeleteDialog = true
-                                },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Delete, null)
-                                },
-                            )
-                        }
-                    }
-                }
+        )
+    }
+
+    if (showForgetHostKeysDialog) {
+        ForgetHostKeysDialog(
+            host = host,
+            onDismiss = { showForgetHostKeysDialog = false },
+            onConfirm = {
+                showForgetHostKeysDialog = false
+                onForgetHostKeys()
             },
-            modifier = Modifier
-                .clickable(onClick = onClick)
-                .testTag(HostListTestTags.itemRow(host.id)),
-        ) {
-            Text(
-                text = host.nickname,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-        HorizontalDivider()
-
-        if (showDeleteDialog) {
-            HostDeleteDialog(
-                host = host,
-                onDismiss = { showDeleteDialog = false },
-                onConfirm = {
-                    showDeleteDialog = false
-                    onDelete()
-                },
-            )
-        }
-
-        if (showDisconnectDialog) {
-            HostDisconnectDialog(
-                host = host,
-                onDismiss = { showDisconnectDialog = false },
-                onConfirm = {
-                    showDisconnectDialog = false
-                    onDisconnect()
-                },
-            )
-        }
-
-        if (showForgetHostKeysDialog) {
-            ForgetHostKeysDialog(
-                host = host,
-                onDismiss = { showForgetHostKeysDialog = false },
-                onConfirm = {
-                    showForgetHostKeysDialog = false
-                    onForgetHostKeys()
-                },
-            )
-        }
+        )
     }
 }
 
@@ -756,7 +788,7 @@ private fun HostDeleteDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.list_host_delete)) },
         text = {
@@ -783,7 +815,7 @@ private fun HostDisconnectDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.list_host_disconnect)) },
         text = {
@@ -810,7 +842,7 @@ private fun ForgetHostKeysDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.list_host_forget_keys)) },
         text = {

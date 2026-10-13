@@ -36,7 +36,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,7 +48,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -75,6 +73,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import org.connectbot.R
 import org.connectbot.ui.PreviewScreen
 import org.connectbot.ui.components.ColorPickerDialog
+import org.connectbot.ui.components.GlassAlertDialog
+import org.connectbot.ui.components.GlassTopAppBar
 import org.connectbot.ui.components.RgbColorPickerDialog
 import org.connectbot.ui.components.SaveEditorFab
 import org.connectbot.ui.components.TextInputAlertDialog
@@ -163,6 +163,7 @@ fun PaletteEditorScreenContent(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
@@ -174,7 +175,7 @@ fun PaletteEditorScreenContent(
             )
         },
         topBar = {
-            TopAppBar(
+            GlassTopAppBar(
                 title = { Text(stringResource(R.string.title_palette_editor)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -296,7 +297,7 @@ fun PaletteEditorScreenContent(
     }
 
     if (uiState.showResetAllDialog) {
-        AlertDialog(
+        GlassAlertDialog(
             onDismissRequest = { onHideResetAllDialog() },
             title = { Text(stringResource(R.string.dialog_title_reset_all)) },
             text = { Text(stringResource(R.string.dialog_message_reset_all)) },

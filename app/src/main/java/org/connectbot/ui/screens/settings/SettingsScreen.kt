@@ -45,7 +45,6 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.FontDownload
 import androidx.compose.material.icons.filled.Terminal
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -59,7 +58,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -84,6 +82,8 @@ import org.connectbot.ui.ObservePermissionOnResume
 import org.connectbot.ui.PreviewScreen
 import org.connectbot.ui.common.getLocalizedFontDisplayName
 import org.connectbot.ui.components.FontDownloadProgressDialog
+import org.connectbot.ui.components.GlassAlertDialog
+import org.connectbot.ui.components.GlassTopAppBar
 import org.connectbot.ui.components.TextInputAlertDialog
 import org.connectbot.ui.theme.ConnectBotTheme
 import org.connectbot.util.LanguageDownloadState
@@ -270,8 +270,9 @@ fun SettingsScreenContent(
     highlightItem: String? = null,
 ) {
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
-            TopAppBar(
+            GlassTopAppBar(
                 title = { Text(stringResource(R.string.title_settings)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -962,7 +963,7 @@ private fun ListPreferenceDialog(
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -1047,7 +1048,7 @@ private fun LanguageListPreferenceDialog(
     onDismiss: () -> Unit,
     onEntryClick: (String) -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -1165,7 +1166,7 @@ private fun ListPreferenceWithCustomDialog(
             label = { Text(stringResource(R.string.dialog_custom_value_label)) },
         )
     } else {
-        AlertDialog(
+        GlassAlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(title) },
             text = {
@@ -1606,7 +1607,7 @@ private fun NotificationPermissionDeniedDialog(
     onDismiss: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.connection_alert_permission_denied_title)) },
         text = { Text(stringResource(R.string.connection_alert_permission_denied_message)) },

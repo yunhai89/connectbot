@@ -32,7 +32,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -59,6 +58,7 @@ import org.connectbot.data.entity.Host
 import org.connectbot.service.ConnectionNotifier
 import org.connectbot.service.TerminalManager
 import org.connectbot.ui.components.DisconnectAllDialog
+import org.connectbot.ui.components.GlassAlertDialog
 import org.connectbot.ui.navigation.NavDestinations
 import org.connectbot.ui.navigation.navigateToConsole
 import org.connectbot.ui.theme.ConnectBotTheme
@@ -431,7 +431,7 @@ private fun NotificationPermissionRationaleDialog(
     onDismiss: () -> Unit,
     onAllow: () -> Unit,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.connection_alert_permission_title)) },
         text = { Text(stringResource(R.string.connection_alert_permission_message)) },

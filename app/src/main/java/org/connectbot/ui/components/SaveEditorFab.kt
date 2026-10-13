@@ -18,6 +18,7 @@
 package org.connectbot.ui.components
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,11 +27,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import org.connectbot.ui.theme.glassBorder
+import org.connectbot.ui.theme.glassPalette
 
 @Composable
 fun SaveEditorFab(
@@ -43,12 +47,17 @@ fun SaveEditorFab(
     if (!visible) return
 
     val description = contentDescription
+    val palette = glassPalette()
     FloatingActionButton(
         onClick = { if (!isSaving) onClick() },
-        modifier = modifier.semantics {
-            liveRegion = LiveRegionMode.Polite
-            this.contentDescription = description
-        },
+        modifier = modifier
+            .shadow(12.dp, CircleShape, clip = false, ambientColor = palette.shadow, spotColor = palette.shadow)
+            .glassBorder(shape = CircleShape, palette = palette)
+            .semantics {
+                liveRegion = LiveRegionMode.Polite
+                this.contentDescription = description
+            },
+        shape = CircleShape,
         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
         contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
     ) {

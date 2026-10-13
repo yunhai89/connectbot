@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -41,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.connectbot.R
 import org.connectbot.data.ColorSchemePresets
+import org.connectbot.ui.components.GlassAlertDialog
 
 /**
  * Dialog for selecting a color from the 256-color terminal palette.
@@ -57,9 +57,11 @@ fun ColorPickerDialog(
     selectedColorIndex: Int,
     onSelectColor: (Int) -> Unit,
     onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
     palette: IntArray = ColorSchemePresets.default.colors,
 ) {
-    AlertDialog(
+    GlassAlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
